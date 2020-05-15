@@ -16,15 +16,17 @@ def update_db():
     while True:
         #get current data to put into db
         current_data = asyncio.run(db_data())
+        #get last entered data
+        prev_data = db.training_data.find_one(sort=[( '_id', -1)])
         #get most recent price to see if its a buy/sell
-        prev_price = db.training_data.find_one(sort=[( '_id', -1)]).get("price")
-        result = current_data.get("result")
+        prev_price = prev_data.get("price")
+        result = prev_data.get("result")
         if prev_price > current_data.get("price"):
             result = -1
         elif prev_price < current_data.get("price"):
             result = 1
         #get prev ema
-        prev_ema = db.training_data.find_one(sort=[( '_id', -1)]).get("ema")
+        prev_ema = prev_data.get("ema")
         current_ema = calculate_ema(current_data.get("price"), prev_ema)
         current_data.update({'result' : result})
         current_data.update({'ema' : current_ema})
