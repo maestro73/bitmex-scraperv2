@@ -4,7 +4,7 @@ import time
 from pymongo import MongoClient
 
 def calculate_ema(cur_price, prev_ema):
-    return cur_price * (1/3) + prev_ema * (2/3)
+    return cur_price * (2/13) + prev_ema * (11/13)
 
 def update_db():
     #mongodb info
