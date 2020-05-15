@@ -3,6 +3,9 @@ import asyncio
 import time
 from pymongo import MongoClient
 
+def calculate_ema(cur_price, prev_ema):
+    return cur_price * (1/3) + prev_ema * (2/3)
+
 def update_db():
     #mongodb info
     connection_string = 'mongodb+srv://bitmex-trainer:oFY0mQGJTw4UMdjJ@bitmex-training-mqvgf.gcp.mongodb.net/test?retryWrites=true&w=majority'
@@ -20,7 +23,11 @@ def update_db():
             result = -1
         elif prev_price < current_data.get("price"):
             result = 1
+        #get prev ema
+        prev_ema = db.training_data.find_one(sort=[( '_id', -1)]).get("ema")
+        current_ema = calculate_ema(current_data.get("price"), prev_ema)
         current_data.update({'result' : result})
+        current_data.update({'ema' : current_ema})
         print(current_data)
         #insert into the db
         training_data.insert_one(current_data)
